@@ -10,6 +10,9 @@
     <main class="container">
         <h1>Daily Link</h1>
         <p id="link-container">Loading...</p>
+        <br>
+        <label for="datePicker">Select a Date:</label>
+        <input type="date" id="datePicker">
     </main>
     <script>
         const readings = [
@@ -1319,27 +1322,48 @@
         // first day
         const beginningOfTime = new Date(Date.UTC(2024, 11 - 1, 11)); // we started on Nov 11, 2024
 
-        // calculate days since beginning of time
-        const now = new Date();
-        const daysSinceBeginning = Math.floor((now - beginningOfTime) / (1000 * 60 * 60 * 24));
+        const datePicker = document.getElementById("datePicker");
 
-        // handle case of no readings on Sundays
-        // two items: adjust `daysSinceBeginning` to account for Sundays
-        // and if today is Sunday, then display a different message
+        // Set today's date
+        const today = new Date();
+        const yyyy = today.getFullYear();
+        const mm = String(today.getMonth() + 1).padStart(2, '0'); // Months are zero-based
+        const dd = String(today.getDate()).padStart(2, '0');
+        const todayString = `${yyyy}-${mm}-${dd}`;
 
-        var linkData = {};
-        if (now.getDay() === 0) { // Sunday
-            linkData = {
-                text: "Rest",
-                url: "https://i.giphy.com/media/v1.Y2lkPTc5MGI3NjExOHllZmw5bnc3cGl1cmlqYzY0djEzOGZpZmh0dXEyc2NtMXg0Y2M4ZyZlcD12MV9pbnRlcm5hbF9naWZfYnlfaWQmY3Q9Zw/1BgNBswdJW7fw5q922/giphy.gif"
-            };
+        // Set the minimum date to November 1, 2024
+        datePicker.min = "2024-11-01";
+
+        // Set the date picker to today (if today is after min date)
+        if (todayString >= datePicker.min) {
+            datePicker.value = todayString;
         } else {
-            // Display the link for today
-            linkData = getLinkOfTheDay(daysSinceBeginning - countSundays(beginningOfTime, now));
+            datePicker.value = datePicker.min;
         }
-        const linkContainer = document.getElementById("link-container");
-        linkContainer.innerHTML = `<a href="${linkData.url}" target="_blank">${linkData.text}</a>`;
 
+        const linkContainer = document.getElementById("link-container");
+
+        function updateLink() {
+            const selectedDate = new Date(`${datePicker.value}T00:00:00`);
+            const daysSinceBeginning = Math.floor((selectedDate - beginningOfTime) / (1000 * 60 * 60 * 24));
+
+            var linkData = {};
+            console.log(`SelectedDate: ${selectedDate} which is ${selectedDate.getDay()}`);
+            if (selectedDate.getDay() === 0) { // Sunday
+                linkData = {
+                    text: "Rest",
+                    url: "https://i.giphy.com/media/v1.Y2lkPTc5MGI3NjExOHllZmw5bnc3cGl1cmlqYzY0djEzOGZpZmh0dXEyc2NtMXg0Y2M4ZyZlcD12MV9pbnRlcm5hbF9naWZfYnlfaWQmY3Q9Zw/1BgNBswdJW7fw5q922/giphy.gif"
+                };
+            } else {
+                // Display the link for today
+                linkData = getLinkOfTheDay(daysSinceBeginning - countSundays(beginningOfTime, selectedDate));
+            }
+            linkContainer.innerHTML = `<a href="${linkData.url}" target="_blank">${linkData.text}</a>`;
+        }
+
+        updateLink();
+
+        datePicker.addEventListener("input", updateLink);
     </script>
 </body>
 </html>
