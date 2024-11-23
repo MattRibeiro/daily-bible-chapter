@@ -15,6 +15,31 @@
         <input type="date" id="datePicker">
 
         <details style="margin-top: 1em">
+            <summary>Settings</summary>
+            <form id="settingsForm">
+                <!-- Placeholder for future settings -->
+                <!--
+                <fieldset>
+                    <legend>Start Date</legend>
+                    <label for="startDate">Set Start Date:</label>
+                    <input type="date" id="startDate">
+                </fieldset>
+                -->
+                <fieldset>
+                    <legend>Bible Version</legend>
+                    <label for="bibleVersion">Select Bible Version:</label>
+                    <select id="bibleVersion">
+                        <option value="NLT.116">New Living Translation (NLT)</option>
+                        <option value="NIV.111">New International Version (NIV)</option>
+                        <option value="NASB2020.2692">New American Standard Bible 2020 (NASB)</option>
+                        <option value="NASB1995.100">New American Standard Bible 1995 (NASB)</option>
+                        <option value="KJV.1">King James Version (KJV)</option>
+                    </select>
+                </fieldset>
+            </form>
+        </details>
+
+        <details style="margin-top: 1em">
             <summary>About</summary>
             <p>This project provides a daily link to a Bible chapter, starting on November 11, 2024. The schedule spans 1189 readings (6 readings per week), covering the entire Bible.</p>
             <p>Each week includes selections from three distinct sections of the Bible:</p>
@@ -24,8 +49,47 @@
                 <li>The New Testament Writings (Romans to Revelation)</li>
             </ul>
             <p>This distribution ensures that every week features passages from all three sections. Additionally, a gospel is covered approximately once per year.</p>
-        </details>    </main>
+        </details>
+        <a href="https://calendar.google.com/calendar/render?action=TEMPLATE&text=Daily+Bible+Reading&details=Visit+the+daily+link+here:+https://mattribeiro.github.io/daily-bible-chapter&recur=RRULE:FREQ=WEEKLY;BYDAY=MO,TU,WE,TH,FR,SA" target="_blank">
+            Add a daily reminder to your calendar
+        </a>
+    </main>
     <script>
+        // ------------- offline support ------------
+        if ('serviceWorker' in navigator) {
+            navigator.serviceWorker.register('/service-worker.js').then(() => {
+                console.log('Service Worker registered');
+            });
+        }
+
+        // ------------- settings ------------
+        const bibleVersionDropdown = document.getElementById('bibleVersion');
+
+        // Load saved version from localStorage when the page loads
+        let savedVersion = localStorage.getItem('bibleVersion');
+        if (savedVersion && [...bibleVersionDropdown.options].some(option => option.value === savedVersion)) {
+            console.log(`Using saved version: ${savedVersion}`);
+            bibleVersionDropdown.value = savedVersion; // Set the dropdown to the saved value
+        } else {
+            savedVersion = null;
+            localStorage.removeItem('bibleVersion');
+            console.warn(`Invalid saved version "${savedVersion}" was removed from localStorage.`);
+        }
+
+        if (!savedVersion) {
+            console.log('Default version selected: NLT.116');
+            savedVersion = 'NLT.116';
+        }
+
+        // Save the selected version to localStorage when changed
+        bibleVersionDropdown.addEventListener('change', () => {
+            savedVersion = bibleVersionDropdown.value;
+            localStorage.setItem('bibleVersion', savedVersion);
+            console.log(`Bible version saved: ${savedVersion}`);
+            updateLink();
+        });
+
+        // ----------- daily readings ------------
         const readings = [
             { book: "Matthew", chapter: 1 },
             { book: "Romans", chapter: 1 },
@@ -1219,7 +1283,7 @@
         ];
 
         function makeLink(book, chapter) {
-            var ref = "";
+            let ref = "";
             switch (book) {
                 case "Genesis": ref = "GEN"; break;
                 case "Exodus": ref = "EXO"; break;
@@ -1290,7 +1354,8 @@
                 default: ref="GEN";
             }
             // Example: https://www.bible.com/bible/116/GEN.10.NLT
-            return `https://www.bible.com/bible/116/${ref}.${chapter}.NLT`;
+            let [version, versionId] = savedVersion.split('.');
+            return `https://www.bible.com/bible/${versionId}/${ref}.${chapter}.${version}`;
         }
 
         // returns an object with url : string and text : string
@@ -1355,6 +1420,7 @@
         const linkContainer = document.getElementById("link-container");
 
         function updateLink() {
+            console.log("Updating link...");
             const selectedDate = new Date(`${datePicker.value}T00:00:00`);
             const daysSinceBeginning = Math.floor((selectedDate - beginningOfTime) / (1000 * 60 * 60 * 24));
 
@@ -1369,12 +1435,14 @@
                 // Display the link for today
                 linkData = getLinkOfTheDay(daysSinceBeginning - countSundays(beginningOfTime, selectedDate));
             }
+            console.log("New link is ", linkData)
             linkContainer.innerHTML = `<a href="${linkData.url}" target="_blank">${linkData.text}</a>`;
         }
 
         updateLink();
 
         datePicker.addEventListener("input", updateLink);
+
     </script>
 </body>
 </html>
