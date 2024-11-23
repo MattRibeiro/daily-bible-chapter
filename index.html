@@ -14,13 +14,17 @@
         <label for="datePicker">Select a Date:</label>
         <input type="date" id="datePicker">
 
-        <h2>About</h2>
-        <p>A link to one Bible chapter per day, starting on November 11, 2024.</p>
-        <p>This covers the entire bible in 1189 readings (6 readings per week), where chapters are evenly distributed
-        over that period from the Old Testament Books (Gen-Mal), the New Testament Gospels/Narratives (Mat-Act),
-        and the New Testament Writings (Rom-Rev). This way, each week will cover selections from all
-        three areas, and a gospel will be covered approximately once a year.</p>
-    </main>
+        <details style="margin-top: 1em">
+            <summary>About</summary>
+            <p>This project provides a daily link to a Bible chapter, starting on November 11, 2024. The schedule spans 1189 readings (6 readings per week), covering the entire Bible.</p>
+            <p>Each week includes selections from three distinct sections of the Bible:</p>
+            <ul>
+                <li>The Old Testament (Genesis to Malachi)</li>
+                <li>The New Testament Gospels and Narratives (Matthew to Acts)</li>
+                <li>The New Testament Writings (Romans to Revelation)</li>
+            </ul>
+            <p>This distribution ensures that every week features passages from all three sections. Additionally, a gospel is covered approximately once per year.</p>
+        </details>    </main>
     <script>
         const readings = [
             { book: "Matthew", chapter: 1 },
