@@ -58,7 +58,7 @@
     <script>
         // ------------- offline support ------------
         if ('serviceWorker' in navigator) {
-            navigator.serviceWorker.register('/daily-bible-chapter/service-worker.js', { scope: '/daily-bible-chapter/' })
+            navigator.serviceWorker.register('./service-worker.js', { scope: './' })
                 .then((registration) => {
                     console.log('Service Worker registered with scope:', registration.scope);
                 })
