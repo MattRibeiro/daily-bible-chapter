@@ -73,19 +73,22 @@
 
         // Load saved version from localStorage when the page loads
         let savedVersion = localStorage.getItem('bibleVersion');
-        if (savedVersion && [...bibleVersionDropdown.options].some(option => option.value === savedVersion)) {
-            console.log(`Using saved version: ${savedVersion}`);
-            bibleVersionDropdown.value = savedVersion; // Set the dropdown to the saved value
-        } else {
-            savedVersion = null;
-            localStorage.removeItem('bibleVersion');
-            console.warn(`Invalid saved version "${savedVersion}" was removed from localStorage.`);
+        if (savedVersion) {
+            if ([...bibleVersionDropdown.options].some(option => option.value === savedVersion)) {
+                console.log(`Using saved version: ${savedVersion}`);
+            } else {
+                savedVersion = null;
+                localStorage.removeItem('bibleVersion');
+                console.warn(`Invalid saved version "${savedVersion}" was removed from localStorage.`);
+            }
         }
 
         if (!savedVersion) {
             console.log('Default version selected: NLT.116');
             savedVersion = 'NLT.116';
         }
+
+        bibleVersionDropdown.value = savedVersion; // Set the dropdown to the saved value
 
         // Save the selected version to localStorage when changed
         bibleVersionDropdown.addEventListener('change', () => {
