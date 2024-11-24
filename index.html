@@ -19,14 +19,6 @@
         <details style="margin-top: 1em">
             <summary>Settings</summary>
             <form id="settingsForm">
-                <!-- Placeholder for future settings -->
-                <!--
-                <fieldset>
-                    <legend>Start Date</legend>
-                    <label for="startDate">Set Start Date:</label>
-                    <input type="date" id="startDate">
-                </fieldset>
-                -->
                 <fieldset>
                     <legend>Bible Version</legend>
                     <label for="bibleVersion">Select Bible Version:</label>
@@ -39,12 +31,19 @@
                         <option value="KJV.1">King James Version (KJV)</option>
                     </select>
                 </fieldset>
+                <fieldset>
+                    <legend>Start Date</legend>
+                    <label for="startDate">Set Start Date:</label>
+                    <input type="date" id="startDate">
+                </fieldset>
             </form>
         </details>
 
         <details style="margin-top: 1em">
             <summary>About</summary>
-            <p>This project provides a daily link to a Bible chapter, starting on November 11, 2024. The schedule spans 1189 readings (6 readings per week), covering the entire Bible.</p>
+            <p>This project provides a daily link to a Bible chapter, starting on a selected start date.
+                If you're doing this with a group, make sure you share the same start date.
+                The schedule spans 1189 readings (6 readings per week), covering the entire Bible.</p>
             <p>Selections are drawn, in canonical order, from three distinct sections of the Bible:</p>
             <ul>
                 <li>The Old Testament (Genesis to Malachi)</li>
@@ -71,6 +70,26 @@
         }
 
         // ------------- settings ------------
+
+        // << setting: start date >>
+        const startDatePicker = document.getElementById('startDate');
+
+        let savedStartDate = localStorage.getItem('startDate');
+        if (!savedStartDate) {
+            savedStartDate = "2024-11-12"; // Default start date
+            localStorage.setItem('startDate', savedStartDate);
+        }
+
+        startDatePicker.value = savedStartDate;
+
+        startDatePicker.addEventListener('change', () => {
+            savedStartDate = startDatePicker.value;
+            localStorage.setItem('startDate', savedStartDate);
+            console.log(`Start date saved: ${savedStartDate}`);
+            updateLink();
+        });
+
+        // << setting: bible version >>
         const bibleVersionDropdown = document.getElementById('bibleVersion');
 
         // Load saved version from localStorage when the page loads
@@ -1406,9 +1425,6 @@
         }
 
 
-        // first day
-        const beginningOfTime = new Date(Date.UTC(2024, 11 - 1, 11)); // we started on Nov 11, 2024
-
         const datePicker = document.getElementById("datePicker");
 
         // Set today's date
@@ -1418,8 +1434,8 @@
         const dd = String(today.getDate()).padStart(2, '0');
         const todayString = `${yyyy}-${mm}-${dd}`;
 
-        // Set the minimum date to November 1, 2024
-        datePicker.min = "2024-11-01";
+        // Set the minimum date to the Bible reading start date
+        datePicker.min = savedStartDate;
 
         // Set the date picker to today (if today is after min date)
         if (todayString >= datePicker.min) {
@@ -1432,6 +1448,7 @@
 
         function updateLink() {
             console.log("Updating link...");
+            const beginningOfTime = new Date(`${savedStartDate}T00:00:00`); // first day
             const selectedDate = new Date(`${datePicker.value}T00:00:00`);
             const daysSinceBeginning = Math.floor((selectedDate - beginningOfTime) / (1000 * 60 * 60 * 24));
 
