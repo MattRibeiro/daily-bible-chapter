@@ -1447,24 +1447,32 @@
         const linkContainer = document.getElementById("link-container");
 
         function updateLink() {
-            console.log("Updating link...");
-            const beginningOfTime = new Date(`${savedStartDate}T00:00:00`); // first day
-            const selectedDate = new Date(`${datePicker.value}T00:00:00`);
-            const daysSinceBeginning = Math.floor((selectedDate - beginningOfTime) / (1000 * 60 * 60 * 24));
+            console.log(`Updating link to date ${datePicker.value}...`);
 
-            var linkData = {};
-            console.log(`SelectedDate: ${selectedDate} which is ${selectedDate.getDay()}`);
-            if (selectedDate.getDay() === 0) { // Sunday
-                linkData = {
-                    text: "Rest",
-                    url: "https://i.giphy.com/media/v1.Y2lkPTc5MGI3NjExOHllZmw5bnc3cGl1cmlqYzY0djEzOGZpZmh0dXEyc2NtMXg0Y2M4ZyZlcD12MV9pbnRlcm5hbF9naWZfYnlfaWQmY3Q9Zw/1BgNBswdJW7fw5q922/giphy.gif"
-                };
-            } else {
-                // Display the link for today
-                linkData = getLinkOfTheDay(daysSinceBeginning - countSundays(beginningOfTime, selectedDate));
+            try {
+                const beginningOfTime = new Date(`${savedStartDate}T00:00:00`);
+                const selectedDate = new Date(`${datePicker.value}T00:00:00`);
+                const daysSinceBeginning = Math.floor((selectedDate - beginningOfTime) / (1000 * 60 * 60 * 24));
+
+                if (daysSinceBeginning < 0 || isNaN(selectedDate.getTime())) {
+                    throw new Error("Invalid Date Selected");
+                }
+
+                console.log(`SelectedDate: ${selectedDate} which is ${selectedDate.getDay()}`);
+                let linkData = {};
+                if (selectedDate.getDay() === 0) { // Sunday
+                    linkData = {
+                        text: "Rest",
+                        url: "https://i.giphy.com/media/v1.Y2lkPTc5MGI3NjExOHllZmw5bnc3cGl1cmlqYzY0djEzOGZpZmh0dXEyc2NtMXg0Y2M4ZyZlcD12MV9pbnRlcm5hbF9naWZfYnlfaWQmY3Q9Zw/1BgNBswdJW7fw5q922/giphy.gif"
+                    };
+                } else {
+                    linkData = getLinkOfTheDay(daysSinceBeginning - countSundays(beginningOfTime, selectedDate));
+                }
+                console.log("New link is " + JSON.stringify(linkData));
+                linkContainer.innerHTML = `<a href="${linkData.url}" target="_blank">${linkData.text}</a>`;
+            } catch (e) {
+                linkContainer.innerHTML = `<p>${e.message}</p>`;
             }
-            console.log("New link is ", linkData)
-            linkContainer.innerHTML = `<a href="${linkData.url}" target="_blank">${linkData.text}</a>`;
         }
 
         updateLink();
